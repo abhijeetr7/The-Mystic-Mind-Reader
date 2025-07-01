@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mind Reader</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Tone.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Deep purple to blue gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #e0e0e0; /* Light grey text */
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #884dff; /* Purple border */
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #a78bfa; /* Light purple */
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.7);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #c0c0c0;
+        }
+
+        .button {
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            border: none;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .button-primary {
+            background: linear-gradient(45deg, #a78bfa, #8b5cf6); /* Purple gradient */
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .button-secondary {
+            background-color: #3f3f46; /* Dark grey */
+            color: #e0e0e0;
+        }
+
+        .button-secondary:hover {
+            background-color: #52525b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #result-display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #4ade80; /* Green for success */
+            margin-top: 2rem;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.8);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); opacity: 1; }
+            to { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Spooky/Mystical elements */
+        .orb {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #fff, #a78bfa, #6a11cb);
+            border-radius: 50%;
+            filter: blur(20px);
+            opacity: 0.6;
+            animation: floatOrb 10s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        .orb-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .orb-2 { bottom: 15%; right: 10%; animation-delay: 2s; width: 60px; height: 60px; }
+        .orb-3 { top: 5%; right: 20%; animation-delay: 4s; width: 70px; height: 70px; }
+        .orb-4 { bottom: 5%; left: 20%; animation-delay: 6s; width: 90px; height: 90px; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(10px, 20px); }
+            50% { transform: translate(-10px, 0); }
+            75% { transform: translate(5px, -15px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .button {
+                padding: 0.6rem 1.5rem;
+                font-size: 1rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+            #result-display {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Orbs for mystical effect -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+
+        <h1 id="app-title">The Mystic Mind Reader</h1>
+        <p id="app-description">
+            Prepare to have your mind read by the ancient spirits! Follow the simple instructions, and I shall reveal the number you are thinking of.
+        </p>
+
+        <div id="instruction-area" class="mt-8">
+            <p id="instruction-text" class="text-lg font-semibold">Click 'Start' to begin your mystical journey...</p>
+            <button id="start-button" class="button button-primary mt-6">Start</button>
+            <button id="next-button" class="button button-primary mt-6 hidden">Next Step</button>
+            <button id="reveal-button" class="button button-primary mt-6 hidden">Reveal My Mind!</button>
+            <button id="play-again-button" class="button button-secondary mt-6 hidden">Play Again</button>
+        </div>
+
+        <div id="result-area" class="hidden">
+            <p class="text-xl font-bold mt-8 text-white">The number you are thinking of is...</p>
+            <div id="result-display" class="mt-4"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const appTitle = document.getElementById('app-title');
+        const appDescription = document.getElementById('app-description');
+        const instructionArea = document.getElementById('instruction-area');
+        const instructionText = document.getElementById('instruction-text');
+        const startButton = document.getElementById('start-button');
+        const nextButton = document.getElementById('next-button');
+        const revealButton = document.getElementById('reveal-button');
+        const playAgainButton = document.getElementById('play-again-button');
+        const resultArea = document.getElementById('result-area');
+        const resultDisplay = document.getElementById('result-display');
+
+        // Game State
+        let currentStep = 0;
+        const totalSteps = 6; // Number of math steps before reveal
+
+        // Sound effects using Tone.js
+        let synth = null; // Basic synth for tones
+        let drumSynth = null; // For a more percussive sound
+
+        // Function to initialize Tone.js synths
+        function initAudio() {
+            if (Tone.context.state !== 'running') {
+                Tone.start(); // Start audio context on user interaction
+            }
+            if (!synth) {
+                synth = new Tone.Synth().toDestination();
+            }
+            if (!drumSynth) {
+                drumSynth = new Tone.MembraneSynth().toDestination();
+            }
+        }
+
+        // Play a simple tone
+        function playTone(frequency = 440, duration = '8n') {
+            initAudio();
+            synth.triggerAttackRelease(frequency, duration);
+        }
+
+        // Play a suspenseful sound
+        function playSuspenseSound() {
+            initAudio();
+            drumSynth.triggerAttackRelease('C2', '8n');
+            setTimeout(() => drumSynth.triggerAttackRelease('G2', '8n'), 200);
+            setTimeout(() => drumSynth.triggerAttackRelease('C3', '8n'), 400);
+        }
+
+        // Play reveal sound
+        function playRevealSound() {
+            initAudio();
+            const now = Tone.now();
+            synth.triggerAttackRelease('C4', '8n', now);
+            synth.triggerAttackRelease('E4', '8n', now + 0.1);
+            synth.triggerAttackRelease('G4', '8n', now + 0.2);
+            synth.triggerAttackRelease('C5', '4n', now + 0.3);
+        }
+
+        // Math trick steps
+        const steps = [
+            "Think of ANY whole number. Don't tell me what it is!", // Step 0 (initial instruction)
+            "Now, add 5 to your number.", // Step 1
+            "Multiply the result by 2.", // Step 2
+            "Subtract 4 from your current total.", // Step 3
+            "Divide the result by 2.", // Step 4
+            "Finally, subtract your ORIGINAL number from this new total." // Step 5
+        ];
+
+        // Function to update the UI based on the current step
+        function updateUI() {
+            if (currentStep < totalSteps) {
+                instructionText.textContent = steps[currentStep];
+                startButton.classList.add('hidden');
+                nextButton.classList.remove('hidden');
+                revealButton.classList.add('hidden');
+                playAgainButton.classList.add('hidden');
+                resultArea.classList.add('hidden');
+            } else if (currentStep === totalSteps) {
+                // Pre-reveal suspense
+                instructionText.textContent = "The ethereal currents are swirling... I sense a number... A powerful number...";
+                nextButton.classList.add('hidden');
+                revealButton.classList.remove('hidden');
+                playSuspenseSound();
+            } else if (currentStep === totalSteps + 1) {
+                // Reveal
+                instructionText.classList.add('hidden');
+                revealButton.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+                resultDisplay.textContent = '3'; // The magic number!
+                playRevealSound();
+                setTimeout(() => {
+                    playAgainButton.classList.remove('hidden');
+                }, 1000); // Show play again button after a short delay
+            }
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', () => {
+            currentStep = 0; // Start from the first instruction
+            updateUI();
+            playTone(220); // Low tone for start
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentStep++;
+            updateUI();
+            playTone(330); // Mid tone for next step
+        });
+
+        revealButton.addEventListener('click', () => {
+            playSuspenseSound();
+            // Add a delay for suspense before revealing
+            instructionText.textContent = "The veil is thinning... The answer is becoming clear...";
+            revealButton.classList.add('hidden'); // Hide reveal button during suspense
+            setTimeout(() => {
+                currentStep++; // Move to the reveal step
+                updateUI();
+            }, 2000); // 2-second delay
+        });
+
+        playAgainButton.addEventListener('click', () => {
+            currentStep = 0;
+            instructionText.textContent = "Click 'Start' to begin your mystical journey...";
+            appTitle.classList.remove('hidden');
+            appDescription.classList.remove('hidden');
+            startButton.classList.remove('hidden');
+            nextButton.classList.add('hidden');
+            revealButton.classList.add('hidden');
+            playAgainButton.classList.add('hidden');
+            resultArea.classList.add('hidden');
+            instructionText.classList.remove('hidden');
+            resultDisplay.textContent = ''; // Clear previous result
+            playTone(220); // Low tone for play again
+        });
+
+        // Initial UI setup
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI(); // Set initial state (before start button click)
+            // Ensure audio context starts on a user gesture
+            document.body.addEventListener('click', initAudio, { once: true });
+        });
+    </script>
+</body>
+</html>
